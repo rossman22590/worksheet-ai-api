@@ -41,7 +41,6 @@ app.get("/mc", async (req, res) => {
       const stringifiedPrompt = prompt.toString()
       const response = await getMcTest(stringifiedPrompt, parsedNum)
       console.timeEnd()
-      console.log(response)
       res.json(response)
     }
   }
@@ -60,6 +59,7 @@ const getMcTest = async (subject: string, num: number): Promise<string> => {
   });
 
   const output = response.data.choices[0].text
+  console.log(output)
 
   if (output) {
     return output

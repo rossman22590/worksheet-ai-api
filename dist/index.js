@@ -52,7 +52,6 @@ app.get("/mc", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             const stringifiedPrompt = prompt.toString();
             const response = yield getMcTest(stringifiedPrompt, parsedNum);
             console.timeEnd();
-            console.log(response);
             res.json(response);
         }
     }
@@ -68,6 +67,7 @@ const getMcTest = (subject, num) => __awaiter(void 0, void 0, void 0, function* 
         temperature: 0.1,
     });
     const output = response.data.choices[0].text;
+    console.log(output);
     if (output) {
         return output;
     }
