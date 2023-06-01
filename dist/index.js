@@ -52,6 +52,7 @@ app.get("/mc", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             const stringifiedPrompt = prompt.toString();
             const response = yield getMcTest(stringifiedPrompt, parsedNum);
             console.timeEnd();
+            console.log(response);
             res.json(response);
         }
     }

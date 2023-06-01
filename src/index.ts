@@ -41,6 +41,7 @@ app.get("/mc", async (req, res) => {
       const stringifiedPrompt = prompt.toString()
       const response = await getMcTest(stringifiedPrompt, parsedNum)
       console.timeEnd()
+      console.log(response)
       res.json(response)
     }
   }
