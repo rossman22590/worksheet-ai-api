@@ -24,14 +24,23 @@ app.get("/", (req, res) => {
 })
 
 app.get("/mc", async (req, res) => {
+  console.time()
   const userSecret = req.query.secret
   if (userSecret != process.env.SECRET) {
     res.json("Unauthorized Request")
   } else {
     const prompt = req.query.prompt
+    const num = req.query.num
+    let parsedNum = 0
     if (prompt) {
+      if (num) {
+        parsedNum = parseInt(num.toString())
+      } else {
+        parsedNum = 3
+      }
       const stringifiedPrompt = prompt.toString()
-      const response = await getMcTest(stringifiedPrompt)
+      const response = await getMcTest(stringifiedPrompt, parsedNum)
+      console.timeEnd()
       res.json(response)
     }
   }
@@ -41,15 +50,12 @@ app.listen(process.env.PORT, () => {
   console.log(`app running on http://localhost:${process.env.PORT}`)
 })
 
-const getMcTest = async (prompt: string): Promise<string> => {
-  const systemMessage = `You are a multiple choice test generation AI. The user will give you a prompt and your task is to output a task in a JSON format based on that prompt.  Make the questions different from each other while adhering to the prompt. The json you will output will be an object "output" which is an array of length 10 of question objects. Question objects have a property "answers" which is a string array length 4 of the answer choices, a property "title" which is the actual question and a property "rightAnswer" which is the actual answer.`
-  const fullPrompt = `${systemMessage} prompt: ${prompt}`
-
+const getMcTest = async (subject: string, num: number): Promise<string> => {
   const response = await openai.createCompletion({
     model: "text-davinci-003",
-    prompt: fullPrompt,
-    max_tokens: 3500,
-    temperature: 0.7,
+    prompt: "create a practice " + subject  + " multiple choice test of " + num +" questions in a JSON format",
+    max_tokens: 2020,
+    temperature: 0.1,
   });
 
   const output = response.data.choices[0].text
