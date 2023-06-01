@@ -53,7 +53,7 @@ app.listen(process.env.PORT, () => {
 const getMcTest = async (subject: string, num: number): Promise<string> => {
   const response = await openai.createCompletion({
     model: "text-davinci-003",
-    prompt: "create a practice " + subject  + " multiple choice test of " + num +" questions in a JSON format",
+    prompt: "create a practice " + subject  + " multiple choice test with " + num +" questions in a JSON format",
     max_tokens: 2020,
     temperature: 0.1,
   });

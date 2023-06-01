@@ -62,7 +62,7 @@ app.listen(process.env.PORT, () => {
 const getMcTest = (subject, num) => __awaiter(void 0, void 0, void 0, function* () {
     const response = yield openai.createCompletion({
         model: "text-davinci-003",
-        prompt: "create a practice " + subject + " multiple choice test of " + num + " questions in a JSON format",
+        prompt: "create a practice " + subject + " multiple choice test with " + num + " questions in a JSON format",
         max_tokens: 2020,
         temperature: 0.1,
     });
