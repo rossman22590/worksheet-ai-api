@@ -4,7 +4,7 @@ const app = express()
 import dotenv from "dotenv"
 dotenv.config()
 
-import { OpenAIApi, Configuration, ChatCompletionResponseMessage } from "openai"
+import { OpenAIApi, Configuration } from "openai"
 const config = new Configuration({
   apiKey: process.env.OPEN_AI_API_KEY
 })
