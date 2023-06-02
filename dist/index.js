@@ -16,11 +16,21 @@ const express_1 = __importDefault(require("express"));
 const app = (0, express_1.default)();
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const openai_1 = require("openai");
-const config = new openai_1.Configuration({
-    apiKey: process.env.OPEN_AI_API_KEY
+const pdfmake_1 = __importDefault(require("pdfmake/build/pdfmake"));
+const vfs_fonts_1 = __importDefault(require("pdfmake/build/vfs_fonts"));
+pdfmake_1.default.vfs = vfs_fonts_1.default.pdfMake.vfs;
+const supabase_js_1 = require("@supabase/supabase-js");
+// @ts-expect-error
+const supabase = (0, supabase_js_1.createClient)(process.env.SUPABASE_URL, process.env.SUPABASE_API_KEY);
+const base64_arraybuffer_1 = require("base64-arraybuffer");
+const uid_1 = require("uid");
+const generativelanguage_1 = require("@google-ai/generativelanguage");
+const google_auth_library_1 = require("google-auth-library");
+const MODEL_NAME = "models/text-bison-001";
+const PALM_API_KEY = process.env.PALM_API_KEY || "key";
+const client = new generativelanguage_1.TextServiceClient({
+    authClient: new google_auth_library_1.GoogleAuth().fromAPIKey(PALM_API_KEY),
 });
-const openai = new openai_1.OpenAIApi(config);
 const cors_1 = __importDefault(require("cors"));
 app.use((0, cors_1.default)());
 app.get("/", (req, res) => {
@@ -32,26 +42,28 @@ app.get("/", (req, res) => {
         res.json("Authorized");
     }
 });
-app.get("/mc", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.time();
+app.get("/worksheet", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userSecret = req.query.secret;
     if (userSecret != process.env.SECRET) {
         res.json("Unauthorized Request");
     }
     else {
-        const prompt = req.query.prompt;
+        const subject = req.query.subject;
+        const topic = req.query.topic;
         const num = req.query.num;
+        const title = req.query.title;
         let parsedNum = 0;
-        if (prompt) {
+        if (subject && topic && title) {
             if (num) {
                 parsedNum = parseInt(num.toString());
             }
             else {
                 parsedNum = 3;
             }
-            const stringifiedPrompt = prompt.toString();
-            const response = yield getMcTest(stringifiedPrompt, parsedNum);
-            console.timeEnd();
+            const stringifiedSubject = subject.toString();
+            const stringifiedTopic = topic.toString();
+            const stringifiedTitle = title.toString();
+            const response = yield getWorksheet(stringifiedSubject, stringifiedTopic, stringifiedTitle, parsedNum);
             res.json(response);
         }
     }
@@ -59,19 +71,56 @@ app.get("/mc", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 app.listen(process.env.PORT, () => {
     console.log(`app running on http://localhost:${process.env.PORT}`);
 });
-const getMcTest = (subject, num) => __awaiter(void 0, void 0, void 0, function* () {
-    const response = yield openai.createCompletion({
-        model: "text-davinci-003",
-        prompt: "create a practice " + subject + " multiple choice test with " + num + " questions in a JSON format",
-        max_tokens: 2020,
-        temperature: 0.1,
+const getWorksheet = (subject, topic, title, num) => __awaiter(void 0, void 0, void 0, function* () {
+    const prompt = `Create a(n) ${subject} ${topic} worksheet with ${num} questions. Do not put the answers below the question and only list the correct answers at the bottom and add space after each question.`;
+    const result = yield client.generateText({
+        model: MODEL_NAME,
+        temperature: 0,
+        prompt: {
+            text: prompt,
+        },
     });
-    const output = response.data.choices[0].text;
-    console.log(output);
-    if (output) {
-        return output;
+    if (result && result[0].candidates) {
+        const worksheetString = result[0].candidates[0].output;
+        const data = JSON.stringify(result);
+        const worksheetStringArr = worksheetString === null || worksheetString === void 0 ? void 0 : worksheetString.split("Answers");
+        if (worksheetStringArr) {
+            const docDef = {
+                content: [
+                    "\n",
+                    { text: title, style: 'header' },
+                    "\n",
+                    worksheetStringArr[0],
+                    worksheetStringArr[1]
+                ],
+                styles: {
+                    header: {
+                        fontSize: 22,
+                        bold: true
+                    }
+                }
+            };
+            const pathToFile = `worksheeets/${(0, uid_1.uid)()}`;
+            const pdfGenerator = pdfmake_1.default.createPdf(docDef);
+            pdfGenerator.getBase64((base64) => __awaiter(void 0, void 0, void 0, function* () {
+                const { data, error } = yield supabase.storage.from('pdfs').upload(pathToFile, (0, base64_arraybuffer_1.decode)(base64), {
+                    contentType: 'pdf/pdf'
+                });
+                if (error) {
+                    console.log(error);
+                }
+            }));
+            const { data } = supabase.storage.from("pdfs").getPublicUrl(pathToFile);
+            return {
+                data: worksheetString || "",
+                urlToPdf: data.publicUrl
+            };
+        }
+        else {
+            return "Failed Request";
+        }
     }
     else {
-        return "Failed request";
+        return "Failed Request";
     }
 });
