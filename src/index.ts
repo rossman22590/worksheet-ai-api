@@ -105,7 +105,7 @@ const getWorksheet = async (subject: string, topic: string, title: string, num: 
       pdfGenerator.getBase64(async (base64) => {
         const { data, error } = await supabase.storage.from('pdfs').upload(pathToFile, decode(base64), 
         {
-          contentType: 'pdf/pdf'
+          contentType: 'application/pdf'
         })
         if (error) {
           console.log(error)

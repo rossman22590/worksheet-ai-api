@@ -104,7 +104,7 @@ const getWorksheet = (subject, topic, title, num) => __awaiter(void 0, void 0, v
             const pdfGenerator = pdfmake_1.default.createPdf(docDef);
             pdfGenerator.getBase64((base64) => __awaiter(void 0, void 0, void 0, function* () {
                 const { data, error } = yield supabase.storage.from('pdfs').upload(pathToFile, (0, base64_arraybuffer_1.decode)(base64), {
-                    contentType: 'pdf/pdf'
+                    contentType: 'application/pdf'
                 });
                 if (error) {
                     console.log(error);
