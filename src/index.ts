@@ -89,7 +89,7 @@ const getWorksheet = async (subject: string, topic: string, title: string, num: 
           { text: title, style: 'header'},
           "\n",
           worksheetStringArr[0],
-          worksheetStringArr[1]
+          { text: worksheetStringArr[1], pageBreak: 'before'},
         ],
 
         styles: {

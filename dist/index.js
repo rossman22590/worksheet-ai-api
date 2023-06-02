@@ -91,7 +91,7 @@ const getWorksheet = (subject, topic, title, num) => __awaiter(void 0, void 0, v
                     { text: title, style: 'header' },
                     "\n",
                     worksheetStringArr[0],
-                    worksheetStringArr[1]
+                    { text: worksheetStringArr[1], pageBreak: 'before' },
                 ],
                 styles: {
                     header: {
