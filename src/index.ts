@@ -1,5 +1,6 @@
 import express from "express"
 const app = express()
+import bodyParser from "body-parser"
 
 import dotenv from "dotenv"
 dotenv.config()
@@ -27,8 +28,11 @@ import cors from "cors"
 import { TDocumentDefinitions } from "pdfmake/interfaces";
 
 import { WorkSheetRes } from "./types";
+import { ReqBody } from "./types";
 
 app.use(cors())
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 
 app.get("/", (req, res) => {
   const userSecret = req.query.secret
@@ -39,28 +43,13 @@ app.get("/", (req, res) => {
   }
 })
 
-app.get("/worksheet", async (req, res) => {
+app.post("/worksheet", async (req, res) => {
   const userSecret = req.query.secret
   if (userSecret != process.env.SECRET) {
     res.json("Unauthorized Request")
   } else {
-    const subject = req.query.subject
-    const topic = req.query.topic
-    const num = req.query.num
-    const title = req.query.title
-    let parsedNum = 0
-    if (subject && topic && title) {
-      if (num) {
-        parsedNum = parseInt(num.toString())
-      } else {
-        parsedNum = 3
-      }
-      const stringifiedSubject = subject.toString()
-      const stringifiedTopic = topic.toString()
-      const stringifiedTitle = title.toString()
-      const response = await getWorksheet(stringifiedSubject, stringifiedTopic, stringifiedTitle, parsedNum)
-      res.json(response)
-    }
+    const response = await getWorksheet(req.body)
+    res.json(response)
   }
 })
 
@@ -68,7 +57,7 @@ app.listen(process.env.PORT, () => {
   console.log(`app running on http://localhost:${process.env.PORT}`)
 })
 
-const getWorksheet = async (subject: string, topic: string, title: string, num: number): Promise<WorkSheetRes | string> => {
+const getWorksheet = async ({ subject, topic, title, num }: ReqBody): Promise<WorkSheetRes | string> => {
   const prompt = `Create a(n) ${subject} ${topic} worksheet with ${num} questions. Do not put the answers below the question and only list the correct answers at the bottom and add space after each question.`
   const result = await client.generateText({
     model: MODEL_NAME,

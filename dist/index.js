@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const app = (0, express_1.default)();
+const body_parser_1 = __importDefault(require("body-parser"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const pdfmake_1 = __importDefault(require("pdfmake/build/pdfmake"));
@@ -33,6 +34,8 @@ const client = new generativelanguage_1.TextServiceClient({
 });
 const cors_1 = __importDefault(require("cors"));
 app.use((0, cors_1.default)());
+app.use(body_parser_1.default.urlencoded({ extended: false }));
+app.use(body_parser_1.default.json());
 app.get("/", (req, res) => {
     const userSecret = req.query.secret;
     if (!userSecret || userSecret != process.env.SECRET) {
@@ -42,36 +45,20 @@ app.get("/", (req, res) => {
         res.json("Authorized");
     }
 });
-app.get("/worksheet", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post("/worksheet", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userSecret = req.query.secret;
     if (userSecret != process.env.SECRET) {
         res.json("Unauthorized Request");
     }
     else {
-        const subject = req.query.subject;
-        const topic = req.query.topic;
-        const num = req.query.num;
-        const title = req.query.title;
-        let parsedNum = 0;
-        if (subject && topic && title) {
-            if (num) {
-                parsedNum = parseInt(num.toString());
-            }
-            else {
-                parsedNum = 3;
-            }
-            const stringifiedSubject = subject.toString();
-            const stringifiedTopic = topic.toString();
-            const stringifiedTitle = title.toString();
-            const response = yield getWorksheet(stringifiedSubject, stringifiedTopic, stringifiedTitle, parsedNum);
-            res.json(response);
-        }
+        const response = yield getWorksheet(req.body);
+        res.json(response);
     }
 }));
 app.listen(process.env.PORT, () => {
     console.log(`app running on http://localhost:${process.env.PORT}`);
 });
-const getWorksheet = (subject, topic, title, num) => __awaiter(void 0, void 0, void 0, function* () {
+const getWorksheet = ({ subject, topic, title, num }) => __awaiter(void 0, void 0, void 0, function* () {
     const prompt = `Create a(n) ${subject} ${topic} worksheet with ${num} questions. Do not put the answers below the question and only list the correct answers at the bottom and add space after each question.`;
     const result = yield client.generateText({
         model: MODEL_NAME,
