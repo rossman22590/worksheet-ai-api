@@ -51,6 +51,7 @@ app.post("/worksheet", (req, res) => __awaiter(void 0, void 0, void 0, function*
         res.json("Unauthorized Request");
     }
     else {
+        console.log(req.body);
         const response = yield getWorksheet(req.body);
         res.json(response);
     }
@@ -59,6 +60,7 @@ app.listen(process.env.PORT, () => {
     console.log(`app running on http://localhost:${process.env.PORT}`);
 });
 const getWorksheet = ({ subject, topic, title, num }) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(subject, topic, title, num);
     const prompt = `Create a(n) ${subject} ${topic} worksheet with ${num} questions. Do not put the answers below the question and only list the correct answers at the bottom and add space after each question.`;
     const result = yield client.generateText({
         model: MODEL_NAME,
@@ -69,7 +71,6 @@ const getWorksheet = ({ subject, topic, title, num }) => __awaiter(void 0, void 
     });
     if (result && result[0].candidates) {
         const worksheetString = result[0].candidates[0].output;
-        const data = JSON.stringify(result);
         const worksheetStringArr = worksheetString === null || worksheetString === void 0 ? void 0 : worksheetString.split("Answers");
         if (worksheetStringArr) {
             const docDef = {

@@ -48,6 +48,7 @@ app.post("/worksheet", async (req, res) => {
   if (userSecret != process.env.SECRET) {
     res.json("Unauthorized Request")
   } else {
+    console.log(req.body)
     const response = await getWorksheet(req.body)
     res.json(response)
   }
@@ -58,6 +59,7 @@ app.listen(process.env.PORT, () => {
 })
 
 const getWorksheet = async ({ subject, topic, title, num }: ReqBody): Promise<WorkSheetRes | string> => {
+  console.log(subject, topic, title, num)
   const prompt = `Create a(n) ${subject} ${topic} worksheet with ${num} questions. Do not put the answers below the question and only list the correct answers at the bottom and add space after each question.`
   const result = await client.generateText({
     model: MODEL_NAME,
@@ -68,7 +70,6 @@ const getWorksheet = async ({ subject, topic, title, num }: ReqBody): Promise<Wo
   })
   if (result && result[0].candidates) {
     const worksheetString = result[0].candidates[0].output
-    const data = JSON.stringify(result)
     const worksheetStringArr = worksheetString?.split("Answers")
     if (worksheetStringArr) {
 
