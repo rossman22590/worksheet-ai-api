@@ -101,7 +101,8 @@ const getWorksheet = ({ subject, topic, title, num }) => __awaiter(void 0, void 
             const { data } = supabase.storage.from("pdfs").getPublicUrl(pathToFile);
             return {
                 data: worksheetString || "",
-                urlToPdf: data.publicUrl
+                urlToPdf: data.publicUrl,
+                pathToFile: pathToFile
             };
         }
         else {

@@ -1,6 +1,7 @@
 export type WorkSheetRes = {
   data: string,
-  urlToPdf: string
+  urlToPdf: string,
+  pathToFile: string
 }
 
 export type ReqBody = {

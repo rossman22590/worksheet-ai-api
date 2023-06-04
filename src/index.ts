@@ -106,7 +106,8 @@ const getWorksheet = async ({ subject, topic, title, num }: ReqBody): Promise<Wo
 
       return {
         data: worksheetString || "",
-        urlToPdf: data.publicUrl
+        urlToPdf: data.publicUrl,
+        pathToFile: pathToFile
       }
     } else {
       return "Failed Request"
