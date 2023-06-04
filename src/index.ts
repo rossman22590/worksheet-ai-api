@@ -90,7 +90,7 @@ const getWorksheet = async ({ subject, topic, title, num }: ReqBody): Promise<Wo
         }
       }
 
-      const pathToFile = `worksheeets/${uid()}`
+      const pathToFile = `worksheets/${uid()}`
       const pdfGenerator = pdfMake.createPdf(docDef)
       pdfGenerator.getBase64(async (base64) => {
         const { data, error } = await supabase.storage.from('pdfs').upload(pathToFile, decode(base64), 
