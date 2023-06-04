@@ -34,7 +34,7 @@ const client = new generativelanguage_1.TextServiceClient({
 });
 const cors_1 = __importDefault(require("cors"));
 app.use((0, cors_1.default)());
-app.use(body_parser_1.default.urlencoded({ extended: false }));
+app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use(body_parser_1.default.json());
 app.get("/", (req, res) => {
     const userSecret = req.query.secret;

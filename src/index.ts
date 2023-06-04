@@ -31,7 +31,7 @@ import { WorkSheetRes } from "./types";
 import { ReqBody } from "./types";
 
 app.use(cors())
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 app.get("/", (req, res) => {
