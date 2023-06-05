@@ -63,7 +63,7 @@ const getWorksheet = async ({ subject, topic, title, num }: ReqBody): Promise<Wo
   const prompt = `Create a(n) ${subject} ${topic} worksheet with ${num} questions. Do not put the answers below the question and only list the correct answers at the bottom headed with "answers" and add space after each question.`
   const result = await client.generateText({
     model: MODEL_NAME,
-    temperature: 0,
+    temperature: 0.1,
     prompt: {
       text: prompt,
     },
