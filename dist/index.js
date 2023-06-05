@@ -61,7 +61,7 @@ app.listen(process.env.PORT, () => {
 });
 const getWorksheet = ({ subject, topic, title, num }) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(subject, topic, title, num);
-    const prompt = `Create a(n) ${subject} ${topic} worksheet with ${num} questions. Do not put the answers below the question and only list the correct answers at the bottom and add space after each question.`;
+    const prompt = `Create a(n) ${subject} ${topic} worksheet with ${num} questions. Do not put the answers below the question and only list the correct answers at the bottom headed with "answers" and add space after each question.`;
     const result = yield client.generateText({
         model: MODEL_NAME,
         temperature: 0,
