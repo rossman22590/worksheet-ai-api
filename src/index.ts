@@ -98,7 +98,9 @@ const getWorksheet = async ({ subject, topic, title, num }: ReqBody): Promise<Wo
         })
         if (error) {
           console.log(error)
-        }
+        } else [
+          console.log(data)
+        ]
       })
 
       const { data } = supabase.storage.from("pdfs").getPublicUrl(pathToFile)
